@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Telegram Web App</title>
-    <script src="https://telegram.org/js/TelegramWebviews.js"></script>
-</head>
+  <title>Telegram Web App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>  </head>
 <body>
-    <h1>Welcome to Your Telegram Web App!</h1>
-    <p>Your name: <span id="userName"></span></p>
-    <p>Your username: <span id="userUsername"></span></p>
-<script>
-Telegram.WebApp.ready().then(() => {
-    const userNameElement = document.getElementById('userName');
-    const userUsernameElement = document.getElementById('userUsername');
+  <h1>Welcome to Your Telegram Web App!</h1>
+  <p>Your name: <span id="userName"></span></p>
+  <p>Your username: <span id="userUsername"></span></p>
+  <script>
+    Telegram.WebApp.ready().then(() => {
+      const userNameElement = document.getElementById('userName');
+      const userUsernameElement = document.getElementById('userUsername');
 
-    Telegram.WebApp.getUser().then((user) => {
+      Telegram.WebApp.getUser().then((user) => {
         userNameElement.textContent = user.first_name + ' ' + user.last_name;
         userUsernameElement.textContent = user.username;
+      });
     });
-});
-</script>
+  </script>
 </body>
 </html>
