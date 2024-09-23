@@ -5,22 +5,25 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <h1>Welcome to Your Telegram Web App!5</h1>
+  <h1>Welcome to Your Telegram Web App!</h1>
   <p>Your name: <span id="userName"></span></p>
   <p>Your username: <span id="userUsername"></span></p>
   <p>Your photo URL: <span id="userPhotoUrl"></span></p>
+  <p>Your bio: <span id="userBio"></span></p>
   <script>
     Telegram.WebApp.ready().then(() => {
       const userNameElement = document.getElementById('userName');
       const userUsernameElement = document.getElementById('userUsername');
       const userPhotoUrlElement = document.getElementById('userPhotoUrl');
+      const userBioElement = document.getElementById('userBio');
 
       Telegram.WebApp.getUser().then((user) => {
         userNameElement.textContent = user.first_name + ' ' + user.last_name;
         userUsernameElement.textContent = user.username;
         userPhotoUrlElement.textContent = user.photo_url;
+        userBioElement.textContent = user.bio;
 
-        // Store user data in localStorage
+        // Store user data in localStorage (optional)
         localStorage.setItem('userData', JSON.stringify(user));
       });
     });
