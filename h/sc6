@@ -3,9 +3,6 @@ const axios = require('axios');
 
 const app = express();
 
-// Replace with your actual bot token
-const BOT_TOKEN = '8119981730:AAGZE5e61fgJfX21xelRjCMAeyGYE35Yz9A';
-
 // Function to fetch user information from Telegram using the bot token
 async function fetchUserData(userId) {
   try {
