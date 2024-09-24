@@ -30,7 +30,7 @@
 <body>
     <div id="app">
         <div id="nameInput" style="display: none;">
-            <h2>Enter 7 your name:</h2>
+            <h2>Enter 8 your name:</h2>
             <input type="text" id="userNameInput">
             <button onclick="saveName()">Save</button>
         </div>
@@ -92,7 +92,7 @@
         }
 
         function checkUnlock() {
-            if (gameState.count >= 50 && gameState.unlockedButtons.length === 0) {
+            if (gameState.count >= 10 && gameState.unlockedButtons.length === 0) {
                 unlockButton(0);
             }
         }
