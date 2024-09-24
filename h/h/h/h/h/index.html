@@ -1,1 +1,116 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+        }
+        #unlockCodeInput {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="userNameInput" style="display: none;">
+            <input type="text" id="nameInput" placeholder="Enter your name">
+            <button onclick="setUserName()">Submit</button>
+        </div>
+        <div id="gameContent" style="display: none;">
+            <h1>Welcome, <span id="userName"></span>!</h1>
+            <p>Count: <span id="count">0</span></p>
+            <button id="clickButton" onclick="incrementCount()">Click me!</button>
+            <div id="unlockSection" style="display: none;">
+                <h2>Unlocked Buttons</h2>
+                <div id="unlockedButtons"></div>
+                <div id="unlockCodeSection">
+                    <input type="text" id="unlockCodeInput" placeholder="Enter unlock code">
+                    <button onclick="checkUnlockCode()">Unlock</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const unlockCodes = ['789456', '654987', '586947', '475869', '846957', '858585', '787854', '986578', '789458', '777888', '444555'];
+        let gameState = {
+            userName: '',
+            count: 0,
+            unlockedButtons: 0
+        };
+
+        function loadGame() {
+            const savedState = localStorage.getItem('clickerGameState');
+            if (savedState) {
+                gameState = JSON.parse(savedState);
+                document.getElementById('gameContent').style.display = 'block';
+                document.getElementById('userName').textContent = gameState.userName;
+                document.getElementById('count').textContent = gameState.count;
+                if (gameState.count >= 50000000) {
+                    document.getElementById('unlockSection').style.display = 'block';
+                }
+                updateUnlockedButtons();
+            } else {
+                document.getElementById('userNameInput').style.display = 'block';
+            }
+        }
+
+        function setUserName() {
+            const nameInput = document.getElementById('nameInput');
+            if (nameInput.value.trim() !== '') {
+                gameState.userName = nameInput.value.trim();
+                saveGame();
+                document.getElementById('userNameInput').style.display = 'none';
+                document.getElementById('gameContent').style.display = 'block';
+                document.getElementById('userName').textContent = gameState.userName;
+            }
+        }
+
+        function incrementCount() {
+            gameState.count += 5;
+            document.getElementById('count').textContent = gameState.count;
+            if (gameState.count >= 50000000 && document.getElementById('unlockSection').style.display === 'none') {
+                document.getElementById('unlockSection').style.display = 'block';
+            }
+            saveGame();
+        }
+
+        function checkUnlockCode() {
+            const code = document.getElementById('unlockCodeInput').value;
+            if (unlockCodes.includes(code) && gameState.unlockedButtons < 10) {
+                gameState.unlockedButtons++;
+                updateUnlockedButtons();
+                saveGame();
+                document.getElementById('unlockCodeInput').value = '';
+            }
+        }
+
+        function updateUnlockedButtons() {
+            const unlockedButtonsDiv = document.getElementById('unlockedButtons');
+            unlockedButtonsDiv.innerHTML = '';
+            for (let i = 0; i < gameState.unlockedButtons; i++) {
+                const button = document.createElement('button');
+                button.textContent = `Button ${i + 1}`;
+                unlockedButtonsDiv.appendChild(button);
+            }
+        }
+
+        function saveGame() {
+            localStorage.setItem('clickerGameState', JSON.stringify(gameState));
+        }
+
+        window.onload = loadGame;
+    </script>
+</body>
+</html>
