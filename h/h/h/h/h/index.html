@@ -12,45 +12,47 @@
             padding: 20px;
             text-align: center;
         }
-        #username-input, #main-game, #unlock-code-input {
-            margin-bottom: 20px;
-        }
         button {
             margin: 5px;
             padding: 10px;
             font-size: 16px;
         }
-        .blur {
+        .blurred {
             filter: blur(5px);
             pointer-events: none;
+        }
+        #unlockCodeInput {
+            margin: 10px 0;
+            padding: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="username-input">
-        <h2>Enter your username:</h2>
-        <input type="text" id="username" placeholder="Username">
-        <button onclick="setUsername()">Submit</button>
-    </div>
-
-    <div id="main-game" style="display: none;">
-        <h2>Welcome, <span id="user-display"></span>!</h2>
-        <button id="click-button" onclick="incrementCount()">Click me!</button>
-        <p>Count: <span id="count-display">0</span></p>
-        <div id="unlock-buttons"></div>
-        <div id="unlock-code-input" style="display: none;">
-            <input type="text" id="unlock-code" placeholder="Enter unlock code">
-            <button onclick="tryUnlock()">Unlock</button>
+    <div id="app">
+        <div id="nameInput" style="display: none;">
+            <h2>Enter your name:</h2>
+            <input type="text" id="userNameInput">
+            <button onclick="saveName()">Save</button>
+        </div>
+        <div id="gameArea" style="display: none;">
+            <h2>Welcome, <span id="userName"></span>!</h2>
+            <button id="clickButton" onclick="incrementCount()">Click me!</button>
+            <p>Count: <span id="count">0</span></p>
+            <div id="unlockedButtons"></div>
+            <div id="lockedButtons"></div>
+            <div id="unlockCodeArea" style="display: none;">
+                <input type="text" id="unlockCodeInput" placeholder="Enter unlock code">
+                <button onclick="checkUnlockCode()">Unlock</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const UNLOCK_THRESHOLD = 50000000;
-        const UNLOCK_CODES = ['789456', '654987', '586947', '475869', '846957', '858585', '787854', '986578', '789458', '777888', '444555'];
+        const unlockCodes = ['789456', '654987', '586947', '475869', '846957', '858585', '787854', '986578', '789458', '777888', '444555'];
         let gameState = {
-            username: '',
+            userName: '',
             count: 0,
-            unlockedButtons: 0
+            unlockedButtons: []
         };
 
         function loadGameState() {
@@ -58,6 +60,8 @@
             if (savedState) {
                 gameState = JSON.parse(savedState);
                 updateUI();
+            } else {
+                document.getElementById('nameInput').style.display = 'block';
             }
         }
 
@@ -65,61 +69,74 @@
             localStorage.setItem('gameState', JSON.stringify(gameState));
         }
 
-        function setUsername() {
-            const usernameInput = document.getElementById('username');
-            gameState.username = usernameInput.value.trim();
-            if (gameState.username) {
-                saveGameState();
-                updateUI();
-            }
-        }
-
-        function incrementCount() {
-            gameState.count += gameState.count === 0 ? 1 : 5;
+        function saveName() {
+            const nameInput = document.getElementById('userNameInput');
+            gameState.userName = nameInput.value;
             saveGameState();
             updateUI();
         }
 
-        function tryUnlock() {
-            const codeInput = document.getElementById('unlock-code');
-            const enteredCode = codeInput.value.trim();
-            if (UNLOCK_CODES.includes(enteredCode)) {
-                gameState.unlockedButtons++;
-                saveGameState();
-                updateUI();
-                codeInput.value = '';
-            } else {
-                alert('Invalid unlock code. Try again.');
+        function updateUI() {
+            document.getElementById('nameInput').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('userName').textContent = gameState.userName;
+            document.getElementById('count').textContent = gameState.count;
+            updateButtons();
+        }
+
+        function incrementCount() {
+            gameState.count += 5;
+            document.getElementById('count').textContent = gameState.count;
+            saveGameState();
+            checkUnlock();
+        }
+
+        function checkUnlock() {
+            if (gameState.count >= 50000000 && gameState.unlockedButtons.length === 0) {
+                unlockButton(0);
             }
         }
 
-        function updateUI() {
-            const usernameInput = document.getElementById('username-input');
-            const mainGame = document.getElementById('main-game');
-            const userDisplay = document.getElementById('user-display');
-            const countDisplay = document.getElementById('count-display');
-            const unlockButtons = document.getElementById('unlock-buttons');
-            const unlockCodeInput = document.getElementById('unlock-code-input');
+        function unlockButton(index) {
+            if (!gameState.unlockedButtons.includes(index)) {
+                gameState.unlockedButtons.push(index);
+                saveGameState();
+                updateButtons();
+            }
+        }
 
-            if (gameState.username) {
-                usernameInput.style.display = 'none';
-                mainGame.style.display = 'block';
-                userDisplay.textContent = gameState.username;
-                countDisplay.textContent = gameState.count;
+        function updateButtons() {
+            const unlockedButtonsDiv = document.getElementById('unlockedButtons');
+            const lockedButtonsDiv = document.getElementById('lockedButtons');
+            unlockedButtonsDiv.innerHTML = '';
+            lockedButtonsDiv.innerHTML = '';
 
-                unlockButtons.innerHTML = '';
-                for (let i = 0; i < 10; i++) {
-                    const button = document.createElement('button');
-                    button.textContent = `Button ${i + 1}`;
-                    button.classList.toggle('blur', i >= gameState.unlockedButtons);
-                    unlockButtons.appendChild(button);
-                }
-
-                if (gameState.count >= UNLOCK_THRESHOLD && gameState.unlockedButtons < 10) {
-                    unlockCodeInput.style.display = 'block';
+            for (let i = 0; i < 10; i++) {
+                const button = document.createElement('button');
+                button.textContent = `Button ${i + 1}`;
+                
+                if (gameState.unlockedButtons.includes(i)) {
+                    unlockedButtonsDiv.appendChild(button);
                 } else {
-                    unlockCodeInput.style.display = 'none';
+                    button.classList.add('blurred');
+                    lockedButtonsDiv.appendChild(button);
                 }
+            }
+
+            document.getElementById('unlockCodeArea').style.display = gameState.unlockedButtons.length > 0 ? 'block' : 'none';
+        }
+
+        function checkUnlockCode() {
+            const codeInput = document.getElementById('unlockCodeInput');
+            const code = codeInput.value;
+            const index = unlockCodes.indexOf(code);
+            
+            if (index !== -1 && !gameState.unlockedButtons.includes(index)) {
+                unlockButton(index);
+                codeInput.value = '';
+                alert('Button unlocked!');
+            } else {
+                alert('Invalid code or button already unlocked.');
             }
         }
 
