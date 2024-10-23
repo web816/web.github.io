@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Invitation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+        }
+        #video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw; /* Full viewport width */
+            height: 100vh; /* Full viewport height */
+            object-fit: cover; /* Cover the entire area */
+            display: none; /* Initially hidden */
+        }
+        #playButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+
+<video id="video" autoplay loop>
+    <source src="a.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<button id="playButton">Play Video</button>
+
+<script>
+    const video = document.getElementById('video');
+    const playButton = document.getElementById('playButton');
+
+    // Function to show video and hide play button
+    function showVideo() {
+        video.style.display = 'block';
+        playButton.style.display = 'none';
+        video.play();
+    }
+
+    // Function to handle activity detection
+    function handleActivity() {
+        if (video.paused) {
+            video.currentTime = 0; // Restart video
+            video.play();
+        }
+    }
+
+    // Event listeners for user activity
+    window.addEventListener('click', handleActivity);
+    window.addEventListener('mousemove', handleActivity);
+    window.addEventListener('keypress', handleActivity);
+
+    // Check if video can play
+    video.addEventListener('canplay', showVideo);
+    video.addEventListener('error', () => {
+        playButton.style.display = 'block'; // Show play button if video fails to load
+    });
+
+    // Show play button if video cannot autoplay
+    document.addEventListener('DOMContentLoaded', () => {
+        if (video.paused) {
+            playButton.style.display = 'block';
+        }
+    });
+
+    // Play video when play button is clicked
+    playButton.addEventListener('click', showVideo);
+</script>
+
+</body>
+</html>
