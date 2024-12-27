@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Splitter and Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Splitter and Downloader</h1>
+    <input type="file" id="fileInput" accept=".txt"><br>
+    <textarea id="textInput" placeholder="Enter your text here..."></textarea><br>
+    <button onclick="uploadFile()">Upload File</button>
+    <button onclick="generateFiles()">Generate Files</button>
+    <button onclick="downloadAllFiles()">Download All Files</button>
+    <div id="downloadLinks" style="margin-top: 20px;"></div>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById("fileInput");
+            const textInput = document.getElementById("textInput");
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    textInput.value = e.target.result;
+                };
+
+                reader.readAsText(file);
+            } else {
+                alert("Please select a file to upload.");
+            }
+        }
+
+        function generateFiles() {
+            const textInput = document.getElementById("textInput").value;
+            const maxCharacters = 3000;
+            const words = textInput.split(" ");
+            let chunk = "";
+            let fileNumber = 1;
+            const downloadLinksContainer = document.getElementById("downloadLinks");
+
+            downloadLinksContainer.innerHTML = ""; // Clear previous links
+
+            for (let i = 0; i < words.length; i++) {
+                if ((chunk + words[i]).length <= maxCharacters) {
+                    chunk += words[i] + " ";
+                } else {
+                    createDownloadLink(chunk.trim(), fileNumber++);
+                    chunk = words[i] + " ";
+                }
+            }
+
+            // Add the last chunk if it exists
+            if (chunk.trim()) {
+                createDownloadLink(chunk.trim(), fileNumber);
+            }
+        }
+
+        function createDownloadLink(content, fileNumber) {
+            const blob = new Blob([content], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = `file_${fileNumber}.txt`;
+            link.textContent = `Download file_${fileNumber}.txt`;
+            link.style.display = "block";
+
+            document.getElementById("downloadLinks").appendChild(link);
+        }
+
+        function downloadAllFiles() {
+            const textInput = document.getElementById("textInput").value;
+            const maxCharacters = 3000;
+            const words = textInput.split(" ");
+            let chunk = "";
+            let fileNumber = 1;
+            const allChunks = [];
+
+            for (let i = 0; i < words.length; i++) {
+                if ((chunk + words[i]).length <= maxCharacters) {
+                    chunk += words[i] + " ";
+                } else {
+                    allChunks.push(chunk.trim());
+                    chunk = words[i] + " ";
+                }
+            }
+
+            if (chunk.trim()) {
+                allChunks.push(chunk.trim());
+            }
+
+            const blob = new Blob(allChunks.map((chunk, index) => `File ${index + 1}:\n${chunk}\n\n`), { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = "all_files.txt";
+            link.textContent = "Download All Files";
+            link.style.display = "block";
+
+            document.getElementById("downloadLinks").appendChild(link);
+        }
+    </script>
+</body>
+</html>
